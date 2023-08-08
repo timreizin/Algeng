@@ -18,7 +18,7 @@ class ConstantExpression : Expression
     {
         return _constant;
     }
-};
+}
 
 class VariableExpression : Expression
 {
@@ -33,7 +33,7 @@ class VariableExpression : Expression
     {
         return variables[_variableId].GetValue();
     }
-};
+}
 
 class FunctionExpression : Expression
 {
@@ -48,7 +48,7 @@ class FunctionExpression : Expression
     {
         return functions[_functionId].Call(variables, functions);
     }
-};
+}
 
 class UnaryOperation : Expression
 {
@@ -65,7 +65,7 @@ class UnaryOperation : Expression
     {
         return _operator.Apply(_expression.Evaluate(variables, functions));
     }
-};
+}
 
 class BinaryOperation : Expression
 {
@@ -84,4 +84,4 @@ class BinaryOperation : Expression
         return _operator.Apply(_expression1.Evaluate(variables, functions),
             _expression2.Evaluate(variables, functions));
     }
-};
+}

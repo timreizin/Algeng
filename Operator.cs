@@ -3,7 +3,7 @@ namespace Algeng;
 abstract class UnaryOperator
 {
     public abstract long Apply(long operand);
-};
+}
 
 class Negation : UnaryOperator
 {
@@ -11,12 +11,12 @@ class Negation : UnaryOperator
     {
         return -operand;
     }
-};
+}
 
 abstract class BinaryOperator
 {
     public abstract long Apply(long operand1, long operand2);
-};
+}
 
 class Addition : BinaryOperator
 {
@@ -24,7 +24,7 @@ class Addition : BinaryOperator
     {
         return operand1 + operand2;
     }
-};
+}
 
 class Multiplication : BinaryOperator
 {
@@ -32,4 +32,4 @@ class Multiplication : BinaryOperator
     {
         return operand1 + operand2;
     }
-};
+}
