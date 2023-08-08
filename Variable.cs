@@ -3,14 +3,14 @@ namespace Algeng;
 class Variable
 {
     private long _value;
-
-    public Variable(long value)
+    public long Value
     {
-        _value = value;
+        get => _value;
+        set => _value = value;
     }
 
-    public long GetValue()
+    public Variable(long value = 0)
     {
-        return _value;
+        _value = value;
     }
 }
