@@ -13,6 +13,15 @@ class Statement
 
     public void Execute(List<Variable> variables, List<Function> functions)
     {
+        if (_variableId >= variables.Count)
+        {
+            variables.Add(new Variable());
+        }
         variables[_variableId].Value = _expression.Evaluate(variables, functions);
+    }
+
+    public int GetVariableId()
+    {
+        return _variableId;
     }
 }
