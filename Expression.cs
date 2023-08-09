@@ -31,7 +31,7 @@ class VariableExpression : Expression
 
     public override long Evaluate(List<Variable> variables, List<Function> functions)
     {
-        return variables[_variableId].GetValue();
+        return variables[_variableId].Value;
     }
 }
 
