@@ -19,9 +19,4 @@ class Statement
         }
         variables[_variableId].Value = _expression.Evaluate(variables, functions);
     }
-
-    public int GetVariableId()
-    {
-        return _variableId;
-    }
 }
