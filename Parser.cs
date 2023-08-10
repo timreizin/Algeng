@@ -17,9 +17,9 @@ class Parser
 
     public CodeStructure GetLineType(string line)
     {
-        if (!line.Contains(':'))
+        if (line.Contains(':'))
             return CodeStructure.Function;
-        if (!line.Contains('='))
+        if (line.Contains('='))
             return _isInFunction ? CodeStructure.InsideFunctionStatement : CodeStructure.Statement;
         return _isInFunction ? CodeStructure.InsideFunctionExpression : CodeStructure.Expression;
     }
@@ -71,7 +71,7 @@ class Parser
     {
         while (operatorStack.Count > 0 && expressionStack.Count > 0)
         {
-            if (operatorStack.Pop() == '-')
+            if (operatorStack.Peek() == '-')
                 expressionStack.Push(new UnaryOperation(new Negation(), expressionStack.Pop()));
             else
             {
@@ -80,10 +80,10 @@ class Parser
                 Expression operand1 = expressionStack.Pop();
                 BinaryOperator opOperator = new Addition();
                 if (operatorStack.Peek() == '*')
-                    opOperator = new Addition();
-                operatorStack.Pop();
+                    opOperator = new Multiplication();
                 expressionStack.Push(new BinaryOperation(opOperator, operand1, operand2));
             }
+            operatorStack.Pop();
         }
     }
     
@@ -92,47 +92,53 @@ class Parser
         Stack<Expression> expressionStack = new Stack<Expression>();
         Stack<Char> operatorStack = new Stack<char>();
         List<char> accumulateCharacters = new List<char>();
-        for (int i = index; i < code.Length; ++i)
+        for (; index < code.Length; ++index)
         {
-            if (code[i] == ' ')
+            if (code[index] == ' ')
                 continue;
             
-            if (!"+-*()".Contains(code[i]))
+            if (!"+-*()".Contains(code[index]))
             {
-                accumulateCharacters.Add(code[i]);
+                accumulateCharacters.Add(code[index]);
                 continue;
             }
             
             if (accumulateCharacters.Count > 0)
             {
-                expressionStack.Push(ParseAccumulated(accumulateCharacters.ToString()));
+                expressionStack.Push(ParseAccumulated(new string(accumulateCharacters.ToArray())));
                 accumulateCharacters.Clear();
                 CompressStacks(expressionStack, operatorStack);
             }
 
-            if (code[i] == ')')
+            if (code[index] == ')')
                 return expressionStack.Peek();
             
-            if (code[i] == '-')
+            if (code[index] == '-')
             {
                 operatorStack.Push('+');
                 operatorStack.Push('-');
-                continue;
             }
 
-            if (code[i] == '+' || code[i] == '*')
+            if (code[index] == '+' || code[index] == '*')
             {
-                operatorStack.Push(code[i]);
-                continue;
+                operatorStack.Push(code[index]);
             }
 
-            if (code[i] == '(')
+            if (code[index] == '(')
             {
-                expressionStack.Push(ParseExpression(code, ref i));
+                ++index;
+                expressionStack.Push(ParseExpression(code, ref index));
                 CompressStacks(expressionStack, operatorStack);
             }
         }
-
+        
+        if (accumulateCharacters.Count > 0)
+        {
+            expressionStack.Push(ParseAccumulated(new string(accumulateCharacters.ToArray())));
+            accumulateCharacters.Clear();
+            CompressStacks(expressionStack, operatorStack);
+        }
+        
         return expressionStack.Peek();
     }
 

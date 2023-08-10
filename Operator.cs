@@ -30,6 +30,6 @@ class Multiplication : BinaryOperator
 {
     public override long Apply(long operand1, long operand2)
     {
-        return operand1 + operand2;
+        return operand1 * operand2;
     }
 }
