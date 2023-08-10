@@ -5,7 +5,7 @@ class Statement
     private int _variableId;
     private Expression _expression;
 
-    Statement(int variableId, Expression expression)
+    public Statement(int variableId, Expression expression)
     {
         _variableId = variableId;
         _expression = expression;
