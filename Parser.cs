@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices.JavaScript;
+using System.Security.AccessControl;
 
 namespace Algeng;
 
@@ -26,6 +27,12 @@ class Parser
 
     private int GetFunctionId(string name)
     {
+        if (!_functionNameMap.ContainsKey(name))
+        {
+            int id = _functionNameMap.Count;
+            _functionNameMap[name] = id;
+        }
+        
         return _functionNameMap[name];
     }
     
@@ -33,33 +40,30 @@ class Parser
     {
         if (_isInFunction)
         {
-            if (_insideFunctionVariableNameMap.ContainsKey(name))
-                return _insideFunctionVariableNameMap[name];
-            int id = _insideFunctionVariableNameMap.Count;
-            _insideFunctionVariableNameMap[name] = id;
-            return id;
+            if (!_insideFunctionVariableNameMap.ContainsKey(name))
+            {
+                int id = _insideFunctionVariableNameMap.Count;
+                _insideFunctionVariableNameMap[name] = id;
+            }
+
+            return _insideFunctionVariableNameMap[name];
         }
         else
         {
-            if (_variableNameMap.ContainsKey(name))
-                return _variableNameMap[name];
-            int id = _variableNameMap.Count;
-            _variableNameMap[name] = id;
-            return id;
+            if (!_variableNameMap.ContainsKey(name))
+            {
+                int id = _variableNameMap.Count;
+                _variableNameMap[name] = id;
+            }
+
+            return _variableNameMap[name];
         }
     }
 
-    private Expression ParseAccumulated(string code)
+    private Expression ParseAccumulated(string code, List<Expression> arguments)
     {
-        if (code.Contains('['))
-        {
-            string[] arguments = code.Split(new []{'[', ']', ','}, StringSplitOptions.RemoveEmptyEntries);
-            int functionId = GetFunctionId(arguments[0]);
-            List<int> argumentIds = new List<int>();
-            for (int i = 1; i < arguments.Length; ++i)
-                argumentIds.Add(GetVariableId(arguments[i]));
-            return new FunctionExpression(functionId, argumentIds);
-        }
+        if (arguments.Count > 0)
+            return new FunctionExpression(GetFunctionId(code), arguments);
 
         if (code.Any(Char.IsLetter))
             return new VariableExpression(GetVariableId(code));
@@ -92,25 +96,33 @@ class Parser
         Stack<Expression> expressionStack = new Stack<Expression>();
         Stack<Char> operatorStack = new Stack<char>();
         List<char> accumulateCharacters = new List<char>();
+        List<Expression> accumulateExpressions = new List<Expression>();
         for (; index < code.Length; ++index)
         {
             if (code[index] == ' ')
                 continue;
             
-            if (!"+-*()".Contains(code[index]))
+            if (!"+-*()[],".Contains(code[index]))
             {
                 accumulateCharacters.Add(code[index]);
+                continue;
+            }
+
+            if (code[index] == '[' || code[index] == ',')
+            {
+                ++index;
+                accumulateExpressions.Add(ParseExpression(code, ref index));
                 continue;
             }
             
             if (accumulateCharacters.Count > 0)
             {
-                expressionStack.Push(ParseAccumulated(new string(accumulateCharacters.ToArray())));
+                expressionStack.Push(ParseAccumulated(new string(accumulateCharacters.ToArray()), accumulateExpressions));
                 accumulateCharacters.Clear();
                 CompressStacks(expressionStack, operatorStack);
             }
 
-            if (code[index] == ')')
+            if (code[index] == ')' || code[index] == ']')
                 return expressionStack.Peek();
             
             if (code[index] == '-')
@@ -134,7 +146,7 @@ class Parser
         
         if (accumulateCharacters.Count > 0)
         {
-            expressionStack.Push(ParseAccumulated(new string(accumulateCharacters.ToArray())));
+            expressionStack.Push(ParseAccumulated(new string(accumulateCharacters.ToArray()), accumulateExpressions));
             accumulateCharacters.Clear();
             CompressStacks(expressionStack, operatorStack);
         }
@@ -145,13 +157,14 @@ class Parser
     public Expression ParseExpression(string code)
     {
         int index = 0;
+        Expression expression = ParseExpression(code, ref index);
         if (_isInFunction)
         {
             _isInFunction = false;
             _insideFunctionVariableNameMap = new Dictionary<string, int>();
         }
 
-        return ParseExpression(code, ref index);
+        return expression;
     }
 
     public Statement ParseStatement(string code)
@@ -168,8 +181,6 @@ class Parser
         string[] arguments = code.Split(new []{'[', ']', ',', ':'}, StringSplitOptions.RemoveEmptyEntries);
         int functionId = GetFunctionId(arguments[0]);
         _isInFunction = true;
-        
-        List<int> argumentIds = new List<int>();
         for (int i = 1; i < arguments.Length; ++i)
             GetVariableId(arguments[i]);
         return new Function();

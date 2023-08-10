@@ -2,7 +2,7 @@ namespace Algeng;
 
 class Function
 {
-    private List<Statement> _statements;
+    private List<Statement> _statements = new List<Statement>();
     private Expression _returnExpression;
 
     public void AddStatement(Statement statement)

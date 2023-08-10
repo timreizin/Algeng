@@ -38,19 +38,19 @@ class VariableExpression : Expression
 class FunctionExpression : Expression
 {
     private int _functionId;
-    private List<int> _argumentIds;
+    private List<Expression> _arguments;
 
-    public FunctionExpression(int functionId, List<int> argumentIds)
+    public FunctionExpression(int functionId, List<Expression> arguments)
     {
         _functionId = functionId;
-        _argumentIds = argumentIds;
+        _arguments = arguments;
     }
 
     public override long Evaluate(List<Variable> variables, List<Function> functions)
     {
         List<Variable> functionVariables = new List<Variable>();
-        foreach (int id in _argumentIds) 
-            functionVariables.Add(variables[id]);
+        foreach (Expression expression in _arguments) 
+            functionVariables.Add(new Variable(expression.Evaluate(variables, functions)));
         return functions[_functionId].Call(functionVariables, functions);
     }
 }
