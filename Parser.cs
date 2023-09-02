@@ -63,7 +63,10 @@ class Parser
     private Expression ParseAccumulated(string code, List<Expression> arguments)
     {
         if (arguments.Count > 0)
-            return new FunctionExpression(GetFunctionId(code), arguments);
+        {
+            List<Expression> copy = new List<Expression>(arguments);
+            return new FunctionExpression(GetFunctionId(code), copy);
+        }
 
         if (code.Any(Char.IsLetter))
             return new VariableExpression(GetVariableId(code));
@@ -102,7 +105,7 @@ class Parser
             if (code[index] == ' ')
                 continue;
             
-            if (!"+-*()[],".Contains(code[index]))
+            if (!"+-*()[],|".Contains(code[index]))
             {
                 accumulateCharacters.Add(code[index]);
                 continue;
@@ -119,10 +122,11 @@ class Parser
             {
                 expressionStack.Push(ParseAccumulated(new string(accumulateCharacters.ToArray()), accumulateExpressions));
                 accumulateCharacters.Clear();
+                accumulateExpressions.Clear();
                 CompressStacks(expressionStack, operatorStack);
             }
 
-            if (code[index] == ')' || code[index] == ']')
+            if (code[index] == ')' || code[index] == ']' || code[index] == '|')
                 return expressionStack.Peek();
             
             if (code[index] == '-')
@@ -148,6 +152,7 @@ class Parser
         {
             expressionStack.Push(ParseAccumulated(new string(accumulateCharacters.ToArray()), accumulateExpressions));
             accumulateCharacters.Clear();
+            accumulateExpressions.Clear();
             CompressStacks(expressionStack, operatorStack);
         }
         
@@ -157,7 +162,14 @@ class Parser
     public Expression ParseExpression(string code)
     {
         int index = 0;
-        Expression expression = ParseExpression(code, ref index);
+        List<char> newCode = new List<char>();
+        foreach (char i in code)
+        {
+            if (i == ',')
+                newCode.Add('|');
+            newCode.Add(i);
+        }
+        Expression expression = ParseExpression(new string(newCode.ToArray()), ref index);
         if (_isInFunction)
         {
             _isInFunction = false;
