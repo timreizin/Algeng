@@ -11,8 +11,6 @@
             Parser parser = new Parser();
             while (!string.IsNullOrEmpty(input = Console.ReadLine()))
             {
-                //Console.WriteLine((int)parser.GetLineType(input));
-                //Console.WriteLine($"{variables.Count} variables, {functions.Count} functions");
                 switch (parser.GetLineType(input))
                 {
                     case CodeStructure.Expression:
