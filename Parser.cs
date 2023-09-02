@@ -3,11 +3,13 @@ using System.Security.AccessControl;
 
 namespace Algeng;
 
-enum CodeStructure
+//An enumeration representing type of code structures
+enum CodeStructure 
 {
     Expression, Statement, Function, InsideFunctionExpression, InsideFunctionStatement
 }
 
+//A class used to parsing the code
 class Parser
 {
     private Dictionary<String, int> _variableNameMap = new Dictionary<string, int>();
@@ -16,6 +18,7 @@ class Parser
 
     private bool _isInFunction = false;
 
+    //A function that returns what type of code structure the line of code is
     public CodeStructure GetLineType(string line)
     {
         if (line.Contains(':'))
@@ -60,6 +63,7 @@ class Parser
         }
     }
 
+    //A function that parses identifies accumulated while parsing an expression
     private Expression ParseAccumulated(string code, List<Expression> arguments)
     {
         if (arguments.Count > 0)
@@ -74,6 +78,7 @@ class Parser
         return new ConstantExpression(Convert.ToInt64(code));
     }
 
+    //A function that applies operators to expressions, to make up a new expression
     private void CompressStacks(Stack<Expression> expressionStack, Stack<Char> operatorStack)
     {
         while (operatorStack.Count > 0 && expressionStack.Count > 0)
@@ -94,6 +99,7 @@ class Parser
         }
     }
     
+    //A function that parses expression code
     private Expression ParseExpression(string code, ref int index)
     {
         Stack<Expression> expressionStack = new Stack<Expression>();
@@ -159,6 +165,7 @@ class Parser
         return expressionStack.Peek();
     }
 
+    //A function that parses expression code
     public Expression ParseExpression(string code)
     {
         int index = 0;
@@ -179,6 +186,7 @@ class Parser
         return expression;
     }
 
+    //A function that parses statement code
     public Statement ParseStatement(string code)
     {
         string[] parts = code.Split('=');
@@ -188,6 +196,7 @@ class Parser
         return statement;
     }
 
+    //A function that parses function declaration code
     public Function ParseFunction(string code)
     {
         string[] arguments = code.Split(new []{'[', ']', ',', ':'}, StringSplitOptions.RemoveEmptyEntries);

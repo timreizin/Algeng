@@ -3,6 +3,7 @@
     class Program
     {
 
+        //A function that runs the program, it reads lines one by one, parses them and then executes
         static void Main()
         {
             string input;

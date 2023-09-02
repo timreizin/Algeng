@@ -1,8 +1,10 @@
 namespace Algeng;
 
+//Class that represents a single variable
 class Variable
 {
-    private long _value;
+    //Current value of the variable
+    private long _value; 
     public long Value
     {
         get => _value;

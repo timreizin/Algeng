@@ -1,10 +1,13 @@
 namespace Algeng;
 
+//A class that represents a single expression
 abstract class Expression
 {
+    //Function that can be used to evaluate the expression
     public abstract long Evaluate(List<Variable> variables, List<Function> functions);
 }
 
+//A class that represents a constant expression, that is a single number
 class ConstantExpression : Expression
 {
     private long _constant;
@@ -20,6 +23,7 @@ class ConstantExpression : Expression
     }
 }
 
+//A class that represents a variable expression, that is a single variable
 class VariableExpression : Expression
 {
     private int _variableId;
@@ -35,6 +39,7 @@ class VariableExpression : Expression
     }
 }
 
+//A class that represents a function expression, that is a single function and all its call arguments
 class FunctionExpression : Expression
 {
     private int _functionId;
@@ -55,6 +60,7 @@ class FunctionExpression : Expression
     }
 }
 
+//A class that represents an unary operation, that is an expression, and an unary operator that has to be applied to it
 class UnaryOperation : Expression
 {
     private UnaryOperator _operator;
@@ -72,6 +78,7 @@ class UnaryOperation : Expression
     }
 }
 
+//A class that represents a binary operation, that two expressions, and a binary operator that has to be applied to them
 class BinaryOperation : Expression
 {
     private BinaryOperator _operator;
