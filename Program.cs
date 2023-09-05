@@ -2,35 +2,45 @@
 {
     class Program
     {
+        static List<Variable> _variables = new List<Variable>();
+        static List<Function> _functions = new List<Function>();
+        static Parser _parser = new Parser();
+        
+        //A function that processes a line of the input
+        static string ProcessLine(string line)
+        {
+            long? result = null;
+            switch (_parser.GetLineType(line))
+            {
+                case CodeStructure.Expression:
+                    result = _parser.ParseExpression(line).Evaluate(_variables, _functions);
+                    break;
+                case CodeStructure.Statement:
+                    _parser.ParseStatement(line).Execute(_variables, _functions);
+                    break;
+                case CodeStructure.Function:
+                    _functions.Add(_parser.ParseFunction(line));
+                    break;
+                case CodeStructure.InsideFunctionExpression:
+                    _functions.Last().SetReturn(_parser.ParseExpression(line));
+                    break;
+                case CodeStructure.InsideFunctionStatement:
+                    _functions.Last().AddStatement(_parser.ParseStatement(line));
+                    break;
+            }
 
-        //A function that runs the program, it reads lines one by one, parses them and then executes
+            if (result == null)
+                return "";
+            return result.ToString() + '\n';
+        }
+        
+        
+        //A function that runs the program, it reads lines one by one and write output from the processing function
         static void Main()
         {
             string input;
-            List<Variable> variables = new List<Variable>();
-            List<Function> functions = new List<Function>();
-            Parser parser = new Parser();
             while (!string.IsNullOrEmpty(input = Console.ReadLine()))
-            {
-                switch (parser.GetLineType(input))
-                {
-                    case CodeStructure.Expression:
-                        Console.WriteLine(parser.ParseExpression(input).Evaluate(variables, functions));
-                        break;
-                    case CodeStructure.Statement:
-                        parser.ParseStatement(input).Execute(variables, functions);
-                        break;
-                    case CodeStructure.Function:
-                        functions.Add(parser.ParseFunction(input));
-                        break;
-                    case CodeStructure.InsideFunctionExpression:
-                        functions.Last().SetReturn(parser.ParseExpression(input));
-                        break;
-                    case CodeStructure.InsideFunctionStatement:
-                        functions.Last().AddStatement(parser.ParseStatement(input));
-                        break;
-                }
-            }
+                Console.Write(ProcessLine(input));
         }
     }
 }
