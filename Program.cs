@@ -1,13 +1,13 @@
 ﻿namespace Algeng
 {
-    class Program
+    public class Program
     {
         static List<Variable> _variables = new List<Variable>();
         static List<Function> _functions = new List<Function>();
         static Parser _parser = new Parser();
         
         //A function that processes a line of the input
-        static string ProcessLine(string line)
+        public static string ProcessLine(string line)
         {
             long? result = null;
             switch (_parser.GetLineType(line))
